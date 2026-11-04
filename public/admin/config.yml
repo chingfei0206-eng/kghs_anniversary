@@ -1,0 +1,260 @@
+# ========================================================
+# 高雄女中 102 週年校慶官方網站 - Decap CMS 設定檔 (config.yml)
+# 嚴格遵循原管理頁面功能與欄位，絕不添加額外功能
+# ========================================================
+
+# 1. 後端驗證設定 (使用 GitHub 儲存庫搭配 Cloudflare Workers OAuth 代理)
+backend:
+  name: github
+  repo: chingfei0206-eng/kghs_anniversary
+  # 目標部署分支
+  branch: main
+  # 部署於 Cloudflare Workers 的 OAuth 代理後端服務網址
+  base_url: https://kghs-cms-auth.chingfei0206.workers.dev
+  # OAuth 驗證路徑
+  auth_endpoint: auth
+
+# 2. 媒體資產儲存路徑 (Decap CMS 規格必填欄位；圖片請使用 Cloudinary 外部網址)
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+# 3. 後台介面顯示設定
+locale: "zh_Hant" # 繁體中文管理介面
+site_url: "https://kghs-anniversary.pages.dev"
+display_url: "https://kghs-anniversary.pages.dev"
+logo_url: "https://kghs-anniversary.pages.dev/assets/aistudio/image_ae280a13.png"
+
+# 4. 資料集合 (Collections) - 僅保留原後台具備之核心功能
+collections:
+  # ----------------------------------------------------
+  # 1. 跑馬燈公告 (啟用開關、公告內容)
+  # ----------------------------------------------------
+  - name: "announcement"
+    label: "📢 跑馬燈公告"
+    files:
+      - name: "announcement_item"
+        label: "跑馬燈狀態與廣播文字"
+        file: "data/announcement.json"
+        format: "json"
+        fields:
+          - { label: "啟用跑馬燈顯示", name: "enabled", widget: "boolean", default: true }
+          - { label: "公告內容", name: "text", widget: "text", hint: "顯示於網站最頂部橫幅跑馬燈" }
+
+  # ----------------------------------------------------
+  # 2. 賽事活動簡介 (原後台：只需項目名稱與詳細內容說明)
+  # ----------------------------------------------------
+  - name: "activities"
+    label: "🔥 賽事活動簡介"
+    files:
+      - name: "activities_list"
+        label: "賽事活動清單"
+        file: "data/activities.json"
+        format: "json"
+        fields:
+          - label: "賽事項目清單"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "項目名稱", name: "title", widget: "string" }
+              - { label: "詳細內容說明", name: "description", widget: "text" }
+
+  # ----------------------------------------------------
+  # 3. 運動會時程表 (原後台：只需時間與項目)
+  # ----------------------------------------------------
+  - name: "schedules"
+    label: "⏱️ 運動會時程表"
+    files:
+      - name: "sports_day_schedule"
+        label: "運動會賽程時間"
+        file: "data/schedules.json"
+        format: "json"
+        fields:
+          - label: "賽程清單"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "時間", name: "time", widget: "string", hint: "例如：08:30" }
+              - { label: "項目", name: "title", widget: "string", hint: "例如：女子 100 公尺短跑決賽" }
+
+  # ----------------------------------------------------
+  # 4. 檢錄時程表 (原後台：需有項目、時間、地點)
+  # ----------------------------------------------------
+  - name: "checkin_schedules"
+    label: "📋 檢錄時程表"
+    files:
+      - name: "checkin_list"
+        label: "檢錄項目、時間與地點"
+        file: "data/checkinSchedules.json"
+        format: "json"
+        fields:
+          - label: "檢錄時程清單"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "項目", name: "title", widget: "string", hint: "例如：4 × 100 公尺接力決賽" }
+              - { label: "時間", name: "time", widget: "string", hint: "例如：13:00" }
+              - { label: "地點", name: "location", widget: "string", hint: "例如：司令台後方檢錄處" }
+
+  # ----------------------------------------------------
+  # 5. 榮譽榜 (原後台：比賽項目、單一文字輸入框)
+  # ----------------------------------------------------
+  - name: "honor_roll"
+    label: "🏆 榮譽榜"
+    files:
+      - name: "honor_list"
+        label: "各項賽事榮譽榜名單"
+        file: "data/honorRoll.json"
+        format: "json"
+        fields:
+          - label: "榮譽榜項目清單"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "比賽項目名稱", name: "eventName", widget: "string", hint: "例如：100m 個人決賽" }
+              - label: "得獎內容 (單一文字輸入框)"
+                name: "content"
+                widget: "text"
+                hint: "例如：第一名：205班 陳怡安 12.68秒\n第二名：102班 林佳穎"
+
+  # ----------------------------------------------------
+  # 6. 採訪 (原後台：只需標題和內文，照片選填貼於文後)
+  # ----------------------------------------------------
+  - name: "interviews"
+    label: "🎤 採訪"
+    label_singular: "採訪文章"
+    folder: "data/interviews"
+    create: true
+    format: "json"
+    identifier_field: "title"
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "標題", name: "title", widget: "string" }
+      - { label: "內文", name: "content", widget: "text" }
+      - label: "照片 (可上傳照片或貼上圖片網址)"
+        name: "imageUrl"
+        widget: "image"
+        required: false
+        choose_url: true
+        hint: "選填，可直接點擊上傳圖片，或貼上外部圖片網址"
+
+  # ----------------------------------------------------
+  # 7. 現場快報 (標題、內文、照片選填，不須時間)
+  # ----------------------------------------------------
+  - name: "live_news"
+    label: "⚡ 現場快報"
+    label_singular: "快報"
+    folder: "data/liveNews"
+    create: true
+    format: "json"
+    identifier_field: "title"
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "標題", name: "title", widget: "string" }
+      - { label: "內文", name: "content", widget: "text" }
+      - label: "照片 (可上傳照片或貼上圖片網址)"
+        name: "imageUrl"
+        widget: "image"
+        required: false
+        choose_url: true
+        hint: "選填，可直接點擊上傳圖片，或貼上外部圖片網址"
+
+  # ----------------------------------------------------
+  # 8. 校慶週活動 (不須時間，標題、內文與照片皆可設定，支援一格上傳多張照片)
+  # ----------------------------------------------------
+  - name: "week_activities"
+    label: "🎉 校慶週活動"
+    label_singular: "週活動"
+    folder: "data/weekActivities"
+    create: true
+    format: "json"
+    identifier_field: "title"
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "標題", name: "title", widget: "string", required: true, hint: "活動主題名稱" }
+      - { label: "內文", name: "content", widget: "text", required: false, hint: "活動詳細內容介紹" }
+      - label: "活動照片 (可上傳多張照片)"
+        name: "images"
+        widget: "list"
+        required: false
+        minimize_collapsed: false
+        summary: "{{fields.image}}"
+        hint: "點擊「Add 照片」可連續上傳多張照片或貼上網址"
+        field: { label: "照片", name: "image", widget: "image", choose_url: true }
+      - label: "單張照片 (舊版相容)"
+        name: "imageUrl"
+        widget: "image"
+        required: false
+        choose_url: true
+        hint: "選填，若上方已有照片列表則可留空"
+
+  # ----------------------------------------------------
+  # 9. 各班攤位一覽 (原後台嚴格三大元素：班級、品項分類、傳單照片)
+  # ----------------------------------------------------
+  - name: "booths"
+    label: "🎪 各班攤位一覽"
+    label_singular: "攤位"
+    folder: "data/booths"
+    create: true
+    format: "json"
+    identifier_field: "className"
+    slug: "{{grade}}-{{className}}"
+    summary: "{{grade}} {{className}}班 ({{categories}})"
+    fields:
+      - label: "年級"
+        name: "grade"
+        widget: "select"
+        options: ["高一", "高二"]
+        default: "高一"
+      - { label: "班級", name: "className", widget: "string", hint: "例如：101、102、201" }
+      - label: "品項分類 (下拉選單多選)"
+        name: "categories"
+        widget: "relation"
+        collection: "booth_categories"
+        file: "categories_setting"
+        search_fields: ["items.*"]
+        value_field: "items.*"
+        display_fields: ["items.*"]
+        multiple: true
+        hint: "請由下拉選單挑選分類（自動依據「攤位分類清單」設定之品項提供選取）"
+      - label: "傳單照片 (可上傳照片或貼上圖片/PDF網址)"
+        name: "flyerUrl"
+        widget: "image"
+        required: false
+        choose_url: true
+        hint: "可直接點擊上傳圖片，或貼上外部圖片/PDF網址"
+
+  # ----------------------------------------------------
+  # 10. 相簿下載連結 (原後台：外部相簿下載連結)
+  # ----------------------------------------------------
+  - name: "albums"
+    label: "📷 相簿下載連結"
+    files:
+      - name: "albums_download"
+        label: "雲端相簿外部網址"
+        file: "data/albums.json"
+        format: "json"
+        fields:
+          - label: "外部雲端相簿分享網址"
+            name: "externalUrl"
+            widget: "string"
+            hint: "例如 Google 相簿、OneDrive 或 Flickr 共享連結"
+
+  # ----------------------------------------------------
+  # 11. 園遊會分類清單 (在此手打分類標籤)
+  # ----------------------------------------------------
+  - name: "booth_categories"
+    label: "🏷️ 攤位分類清單"
+    files:
+      - name: "categories_setting"
+        label: "全站攤位品項分類"
+        file: "data/boothCategories.json"
+        format: "json"
+        fields:
+          - label: "分類清單 (手打標籤，可自由新增、修改與刪除)"
+            name: "items"
+            widget: "list"
+            default: ["冷飲", "甜點", "鹹食", "炸物", "熱食", "遊戲/娛樂", "文創手作"]
+            hint: "在此手打輸入分類標籤，各班攤位將依據此清單提供下拉選單多選"
