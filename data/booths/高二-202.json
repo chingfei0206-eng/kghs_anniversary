@@ -2,7 +2,8 @@
   "grade": "高二",
   "className": "202",
   "categories": [
-    "冷飲"
+    "冷飲",
+    "遊戲/娛樂"
   ],
-  "flyerUrl": "/src/assets/images/fair_food_flyer_1792325751416.jpg"
+  "flyerUrl": "https://res.cloudinary.com/szrxppk5/image/upload/v1793805969/202.jpg"
 }
